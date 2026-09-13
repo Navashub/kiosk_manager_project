@@ -96,6 +96,29 @@ def sell_product(stock, sales_log, items_sold):
     print(f"\nSold {qty} {name} for KES {total}.\n")
 
 
+def print_sales_report(sales_log, items_sold):
+    if not sales_log:
+        print("\nNo sales recorded yet today")
+        return
+
+    print("\n----- SALES REPORT -----")
+    print(f"{'Product':<15}{'Qty':<10}{'Total (KES)':<15}")
+
+    total_revenue = 0
+    quantity_by_product = {}
+
+    for name, qty, total in sales_log:
+        print(f"{name:<15}{qty:<10}{total:<15}")
+        total_revenue += total
+        quantity_by_product[name] = quantity_by_product.get(name, 0) + qty 
+
+    best_seller = max(quantity_by_product, key=quantity_by_product.get)
+
+    print(f"\nTotal revenue: KES {total_revenue}")
+    print(f"Unique products sold: {len(items_sold)}")
+    print(f"Best-selling product: {best_seller} ({quantity_by_product[best_seller]} units)\n")
+
+
 def main():
     kiosk_name, owner_name = get_kiosk_info()
     print_welcome_banner(kiosk_name, owner_name)
@@ -115,7 +138,7 @@ def main():
         elif choice == 3:
             sell_product(stock, sales_log, items_sold)
         elif choice == 4:
-            print("\n[Sales Report will be built in Feature 5]\n")
+            print_sales_report(sales_log, items_sold)
         elif choice == 5:
             print("\n[Search Products will be built in Feature 6]\n")
         elif choice == 6:
