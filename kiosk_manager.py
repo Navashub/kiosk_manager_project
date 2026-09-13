@@ -66,7 +66,34 @@ def restock_product(stock):
 
 
 def sell_product(stock, sales_log, items_sold):
-    name = input("Which product? ").
+    name = input("Which product? ").strip().title()
+
+    if name not in stock:
+        print(f"\nSorry, {name} is not in stock.\n")
+        return 
+
+    qty_input = input("How many units? ").strip()
+    if not qty_input.isdigit():
+        print("\nPlease enter a valid whole number for quantity.\n")
+        return 
+
+    qty = int(qty_input)
+
+    if qty <= 0:
+        print("\nQuantity must be greater than zero.\n")
+
+
+    if stock[name]["quantity"] < qty:
+        print(f"\nNot enough stock. Only {stock[name]['quantity']} units of {name} left.\n")
+        return 
+
+    stock[name]["quantity"] -= qty 
+    total = stock[name]["price"] * qty 
+
+    sales_log.append((name, qty, total))
+    items_sold.add(name)
+
+    print(f"\nSold {qty} {name} for KES {total}.\n")
 
 
 def main():
@@ -74,6 +101,8 @@ def main():
     print_welcome_banner(kiosk_name, owner_name)
 
     stock = create_default_inventory()
+    sales_log = []
+    items_sold = set()
 
     while True:
         show_menu()
@@ -84,7 +113,7 @@ def main():
         elif choice == 2:
             restock_product(stock)
         elif choice == 3:
-            print("\n[Sell a produt will be built in Feature 4]\n")
+            sell_product(stock, sales_log, items_sold)
         elif choice == 4:
             print("\n[Sales Report will be built in Feature 5]\n")
         elif choice == 5:
