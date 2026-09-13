@@ -18,10 +18,11 @@ def show_menu():
     print("=== MAIN MENU ===")
     print("1. View Stock")
     print("2. Add/Restock a Product")
-    print("3. Sell a Product")
-    print("4. View Sales Report")
-    print("5. Search Products")
-    print("6. Exit")
+    print("3. Sell a Product (single item)")
+    print("4. Basket Checkout (multiple items)")
+    print("5. View Sales Report")
+    print("6. Search Products")
+    print("7. Exit")
 
 
 def get_menu_choice():
@@ -38,6 +39,7 @@ def create_default_inventory():
         "Eggs": {"price": 15, "quantity": 30},
         "Sugar": {"price": 150, "quantity": 10}
     }
+
 
 def load_inventory():
     if not os.path.exists(INVENTORY_FILE):
@@ -166,6 +168,52 @@ def search_products(stock):
     print()
 
 
+def basket_checkout(stock, sales_log, items_sold):
+    basket = []
+
+    while True:
+        name = input("Which products would you like to add? ").strip().title()
+
+        if name not in stock:
+            print(f"\nSorry, {name} is not in stock.\n")
+        else:
+            qty_input = input("How many units? ").strip()
+            if not qty_input.isdigit():
+                print("\nPlease enter a avalid whole number for quantity.\n")
+            else:
+                qty = int(qty_input)
+                if qty <= 0:
+                    print("\nQuantity must be greater than zero.\n")
+                elif stock[name]["quantity"] < qty:
+                    print(f"\nNot enough stock. Only {stock[name]['quantity']} units of {name} left.\n")
+                else: 
+                    unit_price = stock[name]['price']
+                    line_total = unit_price * qty 
+                    basket.append((name, qty, unit_price, line_total))
+                    print(f"\nAdded {qty} x {name} to the basket.\n")
+
+        again = input("Add another item? (y/n): ").strip().lower()
+        if again != "y":
+            break 
+
+
+    if not basket:
+        print("\nBasket is empty. Nothing to check out.\n")
+
+
+    print("\n----- RECEIPT -----")
+    grand_total = 0
+
+    for name, qty, unit_price, line_total in basket:
+        print(f"{name:<15}{qty:<5}x KES {unit_price:<8}= KES {line_total}")
+        grand_total += line_total
+        stock[name]["quantity"] -= qty 
+        sales_log.append((name, qty, line_total))
+        items_sold.add(name)
+
+    print(f"\nGrand total: KES {grand_total}")
+
+
 def main():
     kiosk_name, owner_name = get_kiosk_info()
     print_welcome_banner(kiosk_name, owner_name)
@@ -185,10 +233,12 @@ def main():
         elif choice == 3:
             sell_product(stock, sales_log, items_sold)
         elif choice == 4:
-            print_sales_report(sales_log, items_sold)
+            basket_checkout(stock, sales_log, items_sold)
         elif choice == 5:
-            search_products(stock)
+            print_sales_report(sales_log, items_sold)
         elif choice == 6:
+            search_products(stock)
+        elif choice == 7:
             save_inventory(stock)
             save_sales_log(sales_log)
             print(f"\nSaving data... Goodbye, {owner_name}")
