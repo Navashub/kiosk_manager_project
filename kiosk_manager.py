@@ -119,6 +119,22 @@ def print_sales_report(sales_log, items_sold):
     print(f"Best-selling product: {best_seller} ({quantity_by_product[best_seller]} units)\n")
 
 
+def search_products(stock):
+    term = input("Search for a product: ").strip().lower()
+
+    matches = {name: details for name, details in stock.items() if term in name.lower()}
+
+    if not matches: 
+        print("\nNo matches found.\n")
+        return 
+
+    print("\n----- SEARCH RESULTS -----")
+    print(f"{'Product':<15}{'Price (KES)':<15}{'Quantity':<10}")
+    for name, details in matches.items():
+        print(f"{name:<15}{details['price']:<15}{details['quantity']:<10}")
+    print()
+
+
 def main():
     kiosk_name, owner_name = get_kiosk_info()
     print_welcome_banner(kiosk_name, owner_name)
@@ -140,7 +156,7 @@ def main():
         elif choice == 4:
             print_sales_report(sales_log, items_sold)
         elif choice == 5:
-            print("\n[Search Products will be built in Feature 6]\n")
+            search_products(stock)
         elif choice == 6:
             print(f"\nSaving data... Goodbye, {owner_name}!")
             break 
