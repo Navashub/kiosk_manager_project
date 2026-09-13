@@ -1,3 +1,9 @@
+import os 
+
+INVENTORY_FILE = "inventory.txt"
+SALES_LOG_FILE = "sales_log.txt"
+
+
 def get_kiosk_info():
     kiosk_name = input("What's the name of your kiosk? ").strip().title()
     owner_name = input("What's your name? ").strip().title()
@@ -32,6 +38,31 @@ def create_default_inventory():
         "Eggs": {"price": 15, "quantity": 30},
         "Sugar": {"price": 150, "quantity": 10}
     }
+
+def load_inventory():
+    if not os.path.exists(INVENTORY_FILE):
+        return create_default_inventory()
+
+    stock = {}
+    with open(INVENTORY_FILE, "r") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            name, price, quantity = line.split(",")
+            stock[name] = {"price": int(price), "quantity": int(quantity)}
+    return stock
+
+
+def save_inventory(stock):
+    with open(INVENTORY_FILE, "w") as f:
+        for name, details in stock.items():
+            f.write(f"{name}, {details['price']}, {details['quantity']}\n")
+
+def save_sales_log(sales_log):
+    with open(SALES_LOG_FILE, "a") as f:
+        for name, qty, total in sales_log:
+            f.write(f"{name}, {qty}, {total}\n")
 
 
 def view_stock(stock):
@@ -158,7 +189,9 @@ def main():
         elif choice == 5:
             search_products(stock)
         elif choice == 6:
-            print(f"\nSaving data... Goodbye, {owner_name}!")
+            save_inventory(stock)
+            save_sales_log(sales_log)
+            print(f"\nSaving data... Goodbye, {owner_name}")
             break 
         else:
             print("\nSorry, that's not a vlaid choice. Please try again.\n")
